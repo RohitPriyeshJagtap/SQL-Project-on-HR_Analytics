@@ -1,0 +1,189 @@
+--Creating HR_DA Table
+
+CREATE TABLE HR_DA
+(
+	EmpID varchar(20),
+	Age int8 NOT NULL,
+	AgeGroup varchar(50),
+	Attrition varchar(10),
+	BusinessTravel varchar(50),
+	DailyRate int8,
+	Department Varchar(70),
+	DistanceFromHOME int8,
+	Education int8,
+	EducationField varchar(50),
+	EmployeeCount int8,
+	EmployeeNumber int8,
+	Gender varchar(20),
+	HourlyRate int,
+	JobLevel int8,
+	JobRole varchar(70),
+	JobSatisfaction int8,
+	MaritalStatus varchar(20),
+	MonthlyIncome int8,
+	SalarySlab varchar(60),
+	MonthlyRate int8,
+	NumCompaniesWorked int8,
+	PercentSalaryHike int8,
+	PerformanceRating int8,
+	RelationshipSatisfaction int8,
+	TotalWorkingYears int8,
+	YearsAtCompany int8,
+	YearsInCurrentRole int8,
+	YearsSinceLastPromotion int8,
+	YearsWithCurrManager int8
+)
+
+
+--Q1 No of distinct employees: 
+SELECT COUNT(DISTINCT empid) FROM HR_DA;
+
+--Q2 No of employees in HR department:
+SELECT COUNT(DISTINCT empid) FROM HR_DA WHERE department = 'Human Resources' ;
+   
+--No of employess in R&D department:
+SELECT COUNT(DISTINCT empid) FROM HR_DA WHERE department = 'Research & Development' ; 
+   
+--No of employees in sales department:
+SELECT COUNT(DISTINCT empid) FROM HR_DA WHERE department = 'Sales' ;
+
+--Q3 Avg age of employee:
+SELECT ROUND(AVG(age),2) FROM HR_DA;
+
+--Q4 AVG Salary:
+SELECT ROUND(AVG(salary),2) FROM HR_DA;
+
+--Q5 AVG year at company:
+SELECT ROUND(AVG(yearsatcompany),2) FROM HR_DA;
+
+--Q6 Attrition by job role:
+SELECT jobrole, COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY jobrole
+ORDER BY AttritionCount DESC
+LIMIT 4;
+
+--Q7 Attriton by SalarySlab:
+SELECT SalarySlab, COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY SalarySlab
+ORDER BY AttritionCount DESC
+LIMIT 4;
+
+--Q8 Attrition By Age:
+SELECT AgeGroup, COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY AgeGroup
+ORDER BY AttritionCount DESC
+LIMIT 5;
+
+
+--Q9 Attrition by education:
+SELECT educationfield,COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY educationfield
+ORDER BY AttritionCount DESC;
+
+
+--Q10 Total attrition:
+SELECT COUNT(Attrition) AS AttritionCount
+FROM HR_DA WHERE Attrition = 'Yes'
+
+--Q11 Attrition by year at company:
+SELECT yearsatcompany, COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY yearsatcompany
+ORDER BY yearsatcompany ASC
+LIMIT 12;
+
+--Q12 Attrition by gender:
+SELECT gender,COUNT(Attrition) AS AttritionCount FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY gender;
+
+--Q13 Attrition Rate:
+SELECT ROUND(((SELECT COUNT(Attrition) FROM HR_DA WHERE Attrition='Yes')/SUM(employeecount)) * 100,1)
+FROM HR_DA;
+
+--Q14 Department wise attrition rate:
+SELECT ROUND(((SELECT COUNT(Attrition) FROM HR_DA WHERE Attrition='Yes' AND department = 'Sales')/SUM(employeecount)) * 100,1)
+FROM HR_DA
+WHERE department = 'Sales';
+
+SELECT ROUND(((SELECT COUNT(Attrition) FROM HR_DA WHERE Attrition='Yes' AND department = 'Human Resources')/SUM(employeecount)) * 100,1)
+FROM HR_DA
+WHERE department = 'Human Resources';
+
+SELECT ROUND(((SELECT COUNT(Attrition) FROM HR_DA WHERE Attrition='Yes' AND department = 'Research & Development')/SUM(employeecount)) * 100,1)
+FROM HR_DA
+WHERE department = 'Research & Development';
+
+--Q15 Active employees:
+SELECT SUM(employeecount) - (SELECT COUNT(attrition) FROM HR_DA WHERE attrition='Yes') FROM HR_DA;
+
+--OR
+
+SELECT (SELECT SUM(employeecount) FROM HR_DA) - COUNT(Attrition) AS active_employee FROM HR_DA
+WHERE Attrition = 'Yes';
+
+--Q16 % wise Department attrition count:
+SELECT department,COUNT(Attrition) AS Attrition,
+ROUND(CAST((COUNT(Attrition)) AS numeric)/(SELECT COUNT(attrition) FROM HR_DA WHERE attrition = 'Yes')*100,2)
+FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY department
+ORDER BY Attrition DESC;
+
+--Q17 Attrition Rate by Gender for different Age Group:
+SELECT AgeGroup, Gender, COUNT(Attrition) AS attrition,
+ROUND(CAST((COUNT(Attrition)) AS numeric)/(SELECT COUNT(attrition) FROM HR_DA WHERE attrition = 'Yes')*100,2) AS Percent
+FROM HR_DA
+WHERE Attrition = 'Yes'
+GROUP BY AgeGroup,Gender
+ORDER BY AgeGroup,Gender DESC;
+
+--Q18 Job Satisfaction Rating:
+SELECT * FROM 
+crosstab(
+'SELECT JobRole, JobSatisfaction, SUM(EmployeeCount)
+FROM HR_DA
+GROUP BY JobRole, JobSatisfaction
+ORDER BY JobRole, JobSatisfaction'
+) AS ct(JobRole varchar(50), one numeric, two numeric, three numeric, four numeric)
+ORDER BY JobRole;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
